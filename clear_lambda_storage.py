@@ -15,6 +15,58 @@ from botocore.exceptions import ClientError
 LATEST = '$LATEST'
 
 
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description='Removes old versions of Lambda functions.'
+    )
+
+    parser.add_argument(
+        '--token-key-id',
+        type=str,
+        help=(
+            'AWS access key id. Must provide AWS secret access key as well '
+            '(default: from local configuration).'
+        ),
+        metavar='token-key-id'
+    )
+    parser.add_argument(
+        '--token-secret',
+        type=str,
+        help=(
+            'AWS secret access key. Must provide AWS access key id '
+            'as well (default: from local configuration.'
+        ),
+        metavar='token-secret'
+    )
+    parser.add_argument(
+        '--profile',
+        type=str,
+        help=(
+            'AWS profile. Optional '
+            '(default: "default" from local configuration).'
+        ),
+        metavar='profile'
+    )
+
+    parser.add_argument(
+        '--regions',
+        nargs='+',
+        help='AWS region to look for old Lambda versions',
+        metavar='regions'
+    )
+
+    parser.add_argument(
+        '--num-to-keep',
+        type=int,
+        help=(
+            'Number of latest versions to keep. Older versions will be deleted. Optional '
+            '(default: 2).'
+        ),
+        metavar='num-to-keep'
+    )
+    return parser.parse_args()
+
+
 def list_available_lambda_regions():
     """
     Enumerates list of all Lambda regions
@@ -159,54 +211,10 @@ def remove_old_lambda_versions(args):
     print('Freed {} MBs'.format(int(total_deleted_code_size)))
 
 
+def main():
+    args = parse_args()
+    remove_old_lambda_versions(args)
+
+
 if __name__ == '__main__':
-    PARSER = argparse.ArgumentParser(
-        description='Removes old versions of Lambda functions.'
-    )
-
-    PARSER.add_argument(
-        '--token-key-id',
-        type=str,
-        help=(
-            'AWS access key id. Must provide AWS secret access key as well '
-            '(default: from local configuration).'
-        ),
-        metavar='token-key-id'
-    )
-    PARSER.add_argument(
-        '--token-secret',
-        type=str,
-        help=(
-            'AWS secret access key. Must provide AWS access key id '
-            'as well (default: from local configuration.'
-        ),
-        metavar='token-secret'
-    )
-    PARSER.add_argument(
-        '--profile',
-        type=str,
-        help=(
-            'AWS profile. Optional '
-            '(default: "default" from local configuration).'
-        ),
-        metavar='profile'
-    )
-
-    PARSER.add_argument(
-        '--regions',
-        nargs='+',
-        help='AWS region to look for old Lambda versions',
-        metavar='regions'
-    )
-
-    PARSER.add_argument(
-        '--num-to-keep',
-        type=int,
-        help=(
-            'Number of latest versions to keep. Older versions will be deleted. Optional '
-            '(default: 2).'
-        ),
-        metavar='num-to-keep'
-    )
-
-    remove_old_lambda_versions(PARSER.parse_args())
+    main()
